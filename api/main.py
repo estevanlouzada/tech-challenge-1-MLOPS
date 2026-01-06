@@ -71,7 +71,15 @@ def login():
 @app.route('/api/v1/auth/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    """Rota para renovar token."""
+    """
+    Rota para renovar token.
+    ---
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Token renovado com sucesso
+    """
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
     return jsonify(access_token=access_token)
@@ -82,7 +90,13 @@ def refresh():
 # verifica status da API e conectividade com os dados
 @app.route('/api/v1/health', methods=['GET'])
 def health_check():
-    """Verifica status da API e conectividade."""
+    """
+    Verifica status da API e conectividade.
+    ---
+    responses:
+      200:
+        description: API operacional
+    """
     return jsonify({"status": "ok", "message": "API is operational"}), 200
 
 @app.route('/api/v1/books', methods=['GET'])
@@ -98,7 +112,20 @@ def list_books():
 
 @app.route('/api/v1/books/<int:book_id>', methods=['GET'])
 def get_book(book_id):
-    """Retorna detalhes completos de um livro específico pelo ID."""
+    """
+    Retorna detalhes completos de um livro específico pelo ID.
+    ---
+    parameters:
+      - name: book_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Detalhes do livro
+      404:
+        description: Livro não encontrado
+    """
     books = get_data()
     book = next((item for item in books if item["id"] == book_id), None)
     if book:
@@ -107,7 +134,20 @@ def get_book(book_id):
 
 @app.route('/api/v1/books/search', methods=['GET'])
 def search_books():
-    """Busca livros por título e/ou categoria."""
+    """
+    Busca livros por título e/ou categoria.
+    ---
+    parameters:
+      - name: title
+        in: query
+        type: string
+      - name: category
+        in: query
+        type: string
+    responses:
+      200:
+        description: Lista de livros encontrados
+    """
     title_query = request.args.get('title', '').lower()
     category_query = request.args.get('category', '').lower()
     
@@ -125,7 +165,13 @@ def search_books():
 
 @app.route('/api/v1/categories', methods=['GET'])
 def list_categories():
-    """Lista todas as categorias de livros disponíveis."""
+    """
+    Lista todas as categorias de livros disponíveis.
+    ---
+    responses:
+      200:
+        description: Lista de categorias
+    """
     books = get_data()
     categories = list(set([book['category'] for book in books]))
     return jsonify(categories), 200
@@ -134,7 +180,13 @@ def list_categories():
 
 @app.route('/api/v1/stats/overview', methods=['GET'])
 def stats_overview():
-    """Estatísticas gerais da coleção."""
+    """
+    Estatísticas gerais da coleção.
+    ---
+    responses:
+      200:
+        description: Estatísticas gerais
+    """
     df = pd.DataFrame(get_data())
     stats = {
         "total_books": int(len(df)),
@@ -145,7 +197,13 @@ def stats_overview():
 
 @app.route('/api/v1/stats/categories', methods=['GET'])
 def stats_categories():
-    """Estatísticas detalhadas por categoria."""
+    """
+    Estatísticas detalhadas por categoria.
+    ---
+    responses:
+      200:
+        description: Estatísticas por categoria
+    """
     df = pd.DataFrame(get_data())
     cat_stats = df.groupby('category').agg({
         'title': 'count', 
@@ -155,7 +213,13 @@ def stats_categories():
 
 @app.route('/api/v1/books/top-rated', methods=['GET'])
 def top_rated_books():
-    """Lista os livros com melhor avaliação."""
+    """
+    Lista os livros com melhor avaliação.
+    ---
+    responses:
+      200:
+        description: Livros com 5 estrelas
+    """
     df = pd.DataFrame(get_data())
     # Assumindo rating máximo 5, filtra os maiores ratings
     top_books = df[df['rating'] == df['rating'].max()].to_dict(orient='records')
@@ -163,7 +227,20 @@ def top_rated_books():
 
 @app.route('/api/v1/books/price-range', methods=['GET'])
 def price_range():
-    """Filtra livros dentro de uma faixa de preço específica."""
+    """
+    Filtra livros dentro de uma faixa de preço específica.
+    ---
+    parameters:
+      - name: min
+        in: query
+        type: number
+      - name: max
+        in: query
+        type: number
+    responses:
+      200:
+        description: Livros na faixa de preço
+    """
     min_price = float(request.args.get('min', 0))
     max_price = float(request.args.get('max', 1000))
     
@@ -176,7 +253,15 @@ def price_range():
 @app.route('/api/v1/scraping/trigger', methods=['POST'])
 @jwt_required()
 def trigger_scraping():
-    """Rota protegida para disparar o script de scraping."""
+    """
+    Rota protegida para disparar o script de scraping.
+    ---
+    security:
+      - Bearer: []
+    responses:
+      202:
+        description: Processo iniciado
+    """
     # Aqui você chamaria a função do seu módulo de scraping
     return jsonify({"message": "Scraping process started successfully"}), 202
 
@@ -184,7 +269,13 @@ def trigger_scraping():
 
 @app.route('/api/v1/ml/features', methods=['GET'])
 def ml_features():
-    """Dados formatados para features."""
+    """
+    Dados formatados para features.
+    ---
+    responses:
+      200:
+        description: Features para ML
+    """
     # Exemplo: Retornar apenas colunas numéricas ou categóricas codificadas
     df = pd.DataFrame(get_data())
     features = df[['price', 'rating', 'category']].to_dict(orient='records')
@@ -192,12 +283,28 @@ def ml_features():
 
 @app.route('/api/v1/ml/training-data', methods=['GET'])
 def ml_training_data():
-    """Dataset completo pronto para treinamento."""
+    """
+    Dataset completo pronto para treinamento.
+    ---
+    responses:
+      200:
+        description: Dados de treino
+    """
     return jsonify(get_data()), 200
 
 @app.route('/api/v1/ml/predictions', methods=['POST'])
 def ml_predictions():
-    """Endpoint para receber predições (placeholder)."""
+    """
+    Endpoint para receber predições (placeholder).
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+    responses:
+      200:
+        description: Predição realizada
+    """
     input_data = request.json
     # Simulação de retorno de modelo
     prediction = {"predicted_rating": 4.5, "input": input_data}
