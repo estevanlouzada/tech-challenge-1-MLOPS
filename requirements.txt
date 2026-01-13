@@ -1,6 +1,7 @@
 blinker==1.9.0
 beautifulsoup4==4.12.3
 click==8.3.1
+flasgger==0.9.7.1
 Flask==3.1.2
 flask-cors==6.0.1
 itsdangerous==2.2.0
@@ -11,8 +12,12 @@ lxml==5.2.2
 pandas==2.3.3
 python-dateutil==2.9.0.post0
 pytz==2025.2
+requests==2.32.5
 six==1.17.0
 tzdata==2025.2
 Werkzeug==3.1.4
 Flask-JWT-Extended==4.7.1
 PyJWT==2.10.1
+gunicorn==21.2.0
+streamlit==1.28.0
+plotly==5.17.0

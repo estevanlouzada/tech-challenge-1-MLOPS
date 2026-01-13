@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tech-challenge-mlops-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn api.main:app
+    envVars:
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0

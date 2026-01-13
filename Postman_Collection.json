@@ -1,0 +1,388 @@
+{
+  "info": {
+    "_postman_id": "tech-challenge-1-mlops",
+    "name": "Tech Challenge 1 - Books API",
+    "description": "Collection para testar todos os endpoints da API do Tech Challenge 1 MLOPS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "id": "c9d7593a-a8db-47a5-851c-97090a8e2f46",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ]
+        },
+        "description": "Verifica status da API e conectividade"
+      },
+      "response": []
+    },
+    {
+      "name": "List All Books",
+      "id": "fcaa5130-b1fe-4664-ba22-03b6345abdcb",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books"
+          ]
+        },
+        "description": "Lista todos os livros disponíveis na base de dados"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Book by ID",
+      "id": "99e5aea6-acfd-4a20-bf85-f01aa73b60b7",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "1"
+          ]
+        },
+        "description": "Retorna detalhes completos de um livro específico pelo ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Books by Title",
+      "id": "e1e6803a-968a-4509-91da-86e0632d2f64",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/search?title=light",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "title",
+              "value": "light"
+            }
+          ]
+        },
+        "description": "Busca livros por título"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Books by Category",
+      "id": "6671f74c-1ee5-4b96-8ba1-e8a826ae9eb4",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/search?category=poetry",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "poetry"
+            }
+          ]
+        },
+        "description": "Busca livros por categoria"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Books by Title and Category",
+      "id": "b02713b8-c688-4fd0-9d7a-6ebef54a05d4",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/search?title=light&category=poetry",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "title",
+              "value": "light"
+            },
+            {
+              "key": "category",
+              "value": "poetry"
+            }
+          ]
+        },
+        "description": "Busca livros por título e categoria"
+      },
+      "response": []
+    },
+    {
+      "name": "List Categories",
+      "id": "c958b622-f82f-44f8-9014-62d30f51e7db",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/categories",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "categories"
+          ]
+        },
+        "description": "Lista todas as categorias de livros disponíveis"
+      },
+      "response": []
+    },
+    {
+      "name": "Stats Overview",
+      "id": "84d5a5d1-78b4-4359-bfcb-34593b0527fe",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stats/overview",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stats",
+            "overview"
+          ]
+        },
+        "description": "Estatísticas gerais da coleção"
+      },
+      "response": []
+    },
+    {
+      "name": "Stats by Categories",
+      "id": "2cdb82ab-aa4e-49c3-82e4-f34f0e56d5eb",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stats/categories",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stats",
+            "categories"
+          ]
+        },
+        "description": "Estatísticas detalhadas por categoria"
+      },
+      "response": []
+    },
+    {
+      "name": "Top Rated Books",
+      "id": "18f94741-07e0-43d4-b349-a63be4bf797c",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/top-rated",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "top-rated"
+          ]
+        },
+        "description": "Lista os livros com melhor avaliação"
+      },
+      "response": []
+    },
+    {
+      "name": "Books by Price Range",
+      "id": "ece4c4fd-f0cc-40cd-bcf0-f970ba310468",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/books/price-range?min=20&max=50",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "price-range"
+          ],
+          "query": [
+            {
+              "key": "min",
+              "value": "20"
+            },
+            {
+              "key": "max",
+              "value": "50"
+            }
+          ]
+        },
+        "description": "Filtra livros dentro de uma faixa de preço específica"
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set('access_token', jsonData.access_token);",
+              "    pm.environment.set('refresh_token', jsonData.refresh_token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "id": "33f1023f-781a-4f25-b129-6f5ecce69d83",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        },
+        "description": "Obtém token de acesso. O token é automaticamente salvo na variável 'access_token'"
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token",
+      "id": "f8af3b30-3ca0-43b5-8aa1-41bb8ebc4fd4",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{refresh_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "refresh"
+          ]
+        },
+        "description": "Renova o token de acesso usando o refresh token"
+      },
+      "response": []
+    },
+    {
+      "name": "Trigger Scraping (Protected)",
+      "id": "f9c8109f-0cab-4c62-91e6-c7e6a56b1861",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/scraping/trigger",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "scraping",
+            "trigger"
+          ]
+        },
+        "description": "Rota protegida para disparar o script de scraping. Requer autenticação."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "id": "415be1e2-33fd-4a02-a1f7-0a60b866b615",
+      "key": "base_url",
+      "value": "http://127.0.0.1:5001"
+    }
+  ]
+}
