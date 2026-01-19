@@ -1,4 +1,5 @@
 services:
+  # API Flask
   - type: web
     name: tech-challenge-mlops-api
     env: python
@@ -7,5 +8,19 @@ services:
     envVars:
       - key: JWT_SECRET_KEY
         sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
+  
+  # Dashboard Streamlit
+  - type: web
+    name: tech-challenge-mlops-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run dashboard.py --server.port=$PORT --server.address=0.0.0.0
+    envVars:
+      - key: API_BASE_URL
+        sync: false
+        # IMPORTANTE: Configure esta variável com a URL da sua API após o deploy
+        # Exemplo: https://tech-challenge-mlops-api.onrender.com
       - key: PYTHON_VERSION
         value: 3.11.0

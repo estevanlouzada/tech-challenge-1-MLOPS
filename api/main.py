@@ -283,23 +283,42 @@ def trigger_scraping():
     import sys
     
     try:
-        scraper_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'book_scraper.py')
+        # Garantir que o diretório data/ existe
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # Encontrar o caminho do scraper (funciona tanto local quanto no Render)
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        scraper_path = os.path.join(base_dir, 'book_scraper.py')
+        
+        # Verificar se o arquivo existe
+        if not os.path.exists(scraper_path):
+            return jsonify({
+                "message": "Scraper file not found",
+                "path": scraper_path,
+                "error": "book_scraper.py não encontrado"
+            }), 404
+        
+        # Executar o scraping em background
         process = subprocess.Popen(
             [sys.executable, scraper_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            cwd=base_dir  # Executar no diretório raiz do projeto
         )
         
         return jsonify({
             "message": "Scraping process started successfully",
             "pid": process.pid,
-            "status": "running"
+            "status": "running",
+            "note": "O processo pode levar alguns minutos. Use /api/v1/scraping/logs para acompanhar o progresso."
         }), 202
     except Exception as e:
         return jsonify({
             "message": "Error starting scraping process",
-            "error": str(e)
+            "error": str(e),
+            "type": type(e).__name__
         }), 500
 
 @app.route('/api/v1/scraping/logs', methods=['GET'])
