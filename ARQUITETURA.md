@@ -52,6 +52,7 @@ Este documento detalha a arquitetura do sistema, o pipeline de dados, e o plano 
    │  (JSON Responses)   │
    └──────────┬──────────┘
               │
+              ├──► Dashboard Streamlit
               ├──► Aplicações Web/Mobile
               ├──► Cientistas de Dados
               ├──► Modelos de ML
@@ -106,36 +107,69 @@ Este documento detalha a arquitetura do sistema, o pipeline de dados, e o plano 
 - **Validação:** Pydantic Models
 
 **Endpoints:**
-- Core: Health, List, Get, Search, Categories
-- Opcionais: Stats, Top Rated, Price Range
-- ML-Ready: Features, Training Data, Predictions
+- **Core:** Health, List, Get, Search, Categories
+- **Opcionais:** Stats, Top Rated, Price Range
+- **Autenticação:** Login, Refresh Token
+- **Scraping:** Trigger, Logs, Delete CSV
+- **ML-Ready:** Features, Training Data, Predictions
 
-#### 4. Camada de Consumo (Consumption)
+#### 4. Camada de Dashboard (Visualization)
+
+**Responsabilidade:** Interface visual para interação com a API
+
+- **Tecnologia:** Streamlit
+- **Script:** `dashboard.py`
+- **Funcionalidades:**
+  - Visualização de estatísticas gerais
+  - Catálogo de livros com filtros
+  - Autenticação e execução de scraping
+  - Busca de livros
+  - Visualização de logs em tempo real
+
+**Características:**
+- ✅ Interface intuitiva e responsiva
+- ✅ Cache de dados para melhor performance
+- ✅ Integração completa com a API
+- ✅ Gerenciamento de CSV (deletar/recriar)
+
+#### 5. Camada de Consumo (Consumption)
 
 **Responsabilidade:** Fornecer dados para diferentes consumidores
 
 **Tipos de Consumidores:**
-1. **Aplicações Web/Mobile:** JSON via REST
-2. **Cientistas de Dados:** Endpoints específicos para ML
-3. **Modelos de ML:** Features pré-processadas
-4. **Dashboards:** Dados agregados (stats)
+1. **Dashboard Streamlit:** Interface visual interativa
+2. **Aplicações Web/Mobile:** JSON via REST
+3. **Cientistas de Dados:** Endpoints específicos para ML
+4. **Modelos de ML:** Features pré-processadas
+5. **Dashboards/BI:** Dados agregados (stats)
 
 ## 📈 Arquitetura para Escalabilidade
 
-### Cenário Atual (MVP)
+### Cenário Atual (MVP - Deployado)
 
 ```
-┌──────────────┐
-│   Flask API  │
-│  (Single)    │
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│  CSV File    │
-│  (Local)     │
-└──────────────┘
+                    ┌─────────────────┐
+                    │   Render.com    │
+                    │  (Free Tier)    │
+                    └────────┬────────┘
+                             │
+        ┌────────────────────┼────────────────────┐
+        │                    │                    │
+   ┌────▼────┐         ┌─────▼─────┐        ┌────▼────┐
+   │  Flask  │         │ Streamlit │        │  CSV    │
+   │   API   │◄────────┤ Dashboard │        │  File   │
+   │         │         │           │        │         │
+   └────┬────┘         └───────────┘        └────┬────┘
+        │                                        │
+        └────────────────────────────────────────┘
+                    (Leitura via pandas)
 ```
+
+**Deploy:**
+- **API:** Render.com (https://tech-challenge-mlops-api.onrender.com)
+- **Dashboard:** Render.com (https://tech-challenge-mlops-dashboard.onrender.com)
+- **Armazenamento:** CSV (sistema de arquivos efêmero do Render)
+- **Observação:** Serviços podem "dormir" após 15min de inatividade (plano free)
 
 ### Arquitetura Escalável (Futuro)
 
@@ -331,6 +365,37 @@ POST /api/v1/ml/sentiment
               └──────────────┘
 ```
 
+## 🚀 Deploy Atual
+
+### Infraestrutura em Produção
+
+**Plataforma:** Render.com (Free Tier)
+
+**Serviços Deployados:**
+1. **API Flask** (`tech-challenge-mlops-api`)
+   - URL: https://tech-challenge-mlops-api.onrender.com
+   - Build: `pip install -r requirements.txt`
+   - Start: `gunicorn api.main:app`
+   - Variáveis: `JWT_SECRET_KEY`, `PYTHON_VERSION`
+
+2. **Dashboard Streamlit** (`tech-challenge-mlops-dashboard`)
+   - URL: https://tech-challenge-mlops-dashboard.onrender.com
+   - Build: `pip install -r requirements.txt`
+   - Start: `streamlit run dashboard.py --server.port=$PORT --server.address=0.0.0.0`
+   - Variáveis: `API_BASE_URL`, `PYTHON_VERSION`
+
+**Características do Deploy:**
+- ✅ Auto-deploy via GitHub
+- ✅ HTTPS habilitado
+- ✅ CORS configurado
+- ⚠️ Serviços podem "dormir" após 15min (free tier)
+- ⚠️ Wake-up time: 30-60s na primeira requisição
+
+**Armazenamento:**
+- CSV armazenado no sistema de arquivos efêmero do Render
+- Dados podem ser perdidos em reinicializações
+- Solução: Executar scraping via API quando necessário
+
 ## 🔄 Fluxo de Dados Completo
 
 ### 1. Ingestão Contínua
@@ -407,9 +472,11 @@ Update Cache
 ## 🚀 Roadmap de Evolução
 
 ### Curto Prazo (1-2 meses)
+- [x] Deploy em produção (Render) ✅
+- [x] Dashboard Streamlit ✅
+- [x] Endpoints de scraping (trigger, logs, delete) ✅
 - [ ] Migração para banco de dados
 - [ ] Implementação de cache (Redis)
-- [ ] Deploy em produção (Heroku/Render)
 - [ ] Monitoramento básico
 
 ### Médio Prazo (3-6 meses)

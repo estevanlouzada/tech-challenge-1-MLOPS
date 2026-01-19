@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "tech-challenge-1-mlops",
+    "_postman_id": "59b64cca-ebd9-4da1-86f0-735b5687ca08",
     "name": "Tech Challenge 1 - Books API",
     "description": "Collection para testar todos os endpoints da API do Tech Challenge 1 MLOPS",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -8,7 +8,7 @@
   "item": [
     {
       "name": "Health Check",
-      "id": "c9d7593a-a8db-47a5-851c-97090a8e2f46",
+      "id": "ea2d0da6-f284-4f63-b084-aba858bbdbd2",
       "request": {
         "method": "GET",
         "header": [],
@@ -29,7 +29,7 @@
     },
     {
       "name": "List All Books",
-      "id": "fcaa5130-b1fe-4664-ba22-03b6345abdcb",
+      "id": "2dbeeb4c-f370-4764-91b0-01f641fa6490",
       "request": {
         "method": "GET",
         "header": [],
@@ -50,7 +50,7 @@
     },
     {
       "name": "Get Book by ID",
-      "id": "99e5aea6-acfd-4a20-bf85-f01aa73b60b7",
+      "id": "e32e5c79-7ba9-4128-8672-839c777431d1",
       "request": {
         "method": "GET",
         "header": [],
@@ -72,7 +72,7 @@
     },
     {
       "name": "Search Books by Title",
-      "id": "e1e6803a-968a-4509-91da-86e0632d2f64",
+      "id": "184dc7e0-4f92-4134-8b52-fa99c20fb8f8",
       "request": {
         "method": "GET",
         "header": [],
@@ -100,7 +100,7 @@
     },
     {
       "name": "Search Books by Category",
-      "id": "6671f74c-1ee5-4b96-8ba1-e8a826ae9eb4",
+      "id": "9788de97-342d-447c-a03f-e6e7542868a6",
       "request": {
         "method": "GET",
         "header": [],
@@ -128,7 +128,7 @@
     },
     {
       "name": "Search Books by Title and Category",
-      "id": "b02713b8-c688-4fd0-9d7a-6ebef54a05d4",
+      "id": "5ac79f68-ac80-4ba2-beb7-ba444afd5fda",
       "request": {
         "method": "GET",
         "header": [],
@@ -160,7 +160,7 @@
     },
     {
       "name": "List Categories",
-      "id": "c958b622-f82f-44f8-9014-62d30f51e7db",
+      "id": "d7c94464-0481-4472-828d-def266d68253",
       "request": {
         "method": "GET",
         "header": [],
@@ -181,7 +181,7 @@
     },
     {
       "name": "Stats Overview",
-      "id": "84d5a5d1-78b4-4359-bfcb-34593b0527fe",
+      "id": "208b1a1a-c31d-43a5-9eb1-d1059fe2cbfd",
       "request": {
         "method": "GET",
         "header": [],
@@ -203,7 +203,7 @@
     },
     {
       "name": "Stats by Categories",
-      "id": "2cdb82ab-aa4e-49c3-82e4-f34f0e56d5eb",
+      "id": "34384897-9461-4869-aaa2-090f0152f1f1",
       "request": {
         "method": "GET",
         "header": [],
@@ -225,7 +225,7 @@
     },
     {
       "name": "Top Rated Books",
-      "id": "18f94741-07e0-43d4-b349-a63be4bf797c",
+      "id": "21d35c29-0d29-4211-bcec-5988008d699b",
       "request": {
         "method": "GET",
         "header": [],
@@ -247,7 +247,7 @@
     },
     {
       "name": "Books by Price Range",
-      "id": "ece4c4fd-f0cc-40cd-bcf0-f970ba310468",
+      "id": "4b8026b9-5bbd-408d-b643-a31de2127bc0",
       "request": {
         "method": "GET",
         "header": [],
@@ -290,11 +290,12 @@
               "    pm.environment.set('refresh_token', jsonData.refresh_token);",
               "}"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "id": "79006db1-1a39-41d3-bc72-fde2a77ad667"
           }
         }
       ],
-      "id": "33f1023f-781a-4f25-b129-6f5ecce69d83",
+      "id": "6241c242-99ab-42d2-9b43-d007ebda746f",
       "request": {
         "method": "POST",
         "header": [
@@ -325,7 +326,7 @@
     },
     {
       "name": "Refresh Token",
-      "id": "f8af3b30-3ca0-43b5-8aa1-41bb8ebc4fd4",
+      "id": "a06ce8e1-3c9a-4e11-b78e-dead1a6ae751",
       "request": {
         "method": "POST",
         "header": [
@@ -352,7 +353,7 @@
     },
     {
       "name": "Trigger Scraping (Protected)",
-      "id": "f9c8109f-0cab-4c62-91e6-c7e6a56b1861",
+      "id": "aecc4482-ed57-46d8-b52d-b7c024f4a692",
       "request": {
         "method": "POST",
         "header": [
@@ -379,7 +380,7 @@
     },
     {
       "name": "Get Scraping Logs",
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "id": "457526b9-7e91-4468-b50b-1c564e4ffcce",
       "request": {
         "method": "GET",
         "header": [],
@@ -408,7 +409,7 @@
     },
     {
       "name": "Delete CSV (Protected)",
-      "id": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+      "id": "665d54cb-b596-4292-b65b-d2cfc972ce17",
       "request": {
         "method": "DELETE",
         "header": [
@@ -435,7 +436,7 @@
     },
     {
       "name": "ML Features",
-      "id": "c3d4e5f6-a7b8-9012-cdef-345678901234",
+      "id": "363b29a2-a4d4-4636-bd87-1f40d183d4b3",
       "request": {
         "method": "GET",
         "header": [],
@@ -457,7 +458,7 @@
     },
     {
       "name": "ML Training Data",
-      "id": "d4e5f6a7-b8c9-0123-def4-456789012345",
+      "id": "6ce7368a-ee7c-4067-83bd-cb439d236730",
       "request": {
         "method": "GET",
         "header": [],
@@ -479,7 +480,7 @@
     },
     {
       "name": "ML Predictions",
-      "id": "e5f6a7b8-c9d0-1234-ef56-567890123456",
+      "id": "7123c819-2548-4705-87f8-63fda74abb84",
       "request": {
         "method": "POST",
         "header": [
@@ -511,7 +512,7 @@
   ],
   "variable": [
     {
-      "id": "415be1e2-33fd-4a02-a1f7-0a60b866b615",
+      "id": "6cb44391-b8c5-4462-b2c6-2b6ac11f4acb",
       "key": "base_url",
       "value": "https://tech-challenge-mlops-api.onrender.com",
       "type": "string"
