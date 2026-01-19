@@ -80,7 +80,7 @@ with tab1:
                     labels={'x': 'Rating', 'y': 'Quantidade'},
                     title="Distribuição de Ratings"
                 )
-                st.plotly_chart(fig, width='stretch')
+                st.plotly_chart(fig, use_container_width=True)
 
 # Tab 2: Livros
 with tab2:
@@ -154,8 +154,8 @@ with tab2:
                 available_cols = [col for col in display_cols if col in filtered_df.columns]
                 st.dataframe(
                     filtered_df[available_cols],
-                    width='stretch',
-                    height=400
+                    height=400,
+                    use_container_width=True
                 )
 
 # Tab 3: Scraping
@@ -287,4 +287,4 @@ with tab4:
             if len(df_results) > 0:
                 display_cols = ['id', 'title', 'category', 'price', 'rating']
                 available_cols = [col for col in display_cols if col in df_results.columns]
-                st.dataframe(df_results[available_cols], width='stretch')
+                st.dataframe(df_results[available_cols], use_container_width=True)

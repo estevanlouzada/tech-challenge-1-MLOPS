@@ -16,7 +16,23 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'sua-chave-secre
 jwt = JWTManager(app)
 
 # Configuração do Swagger (OpenAPI)
-swagger = Swagger(app)
+template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Books API - Tech Challenge MLOPS",
+        "description": "API para extrair e consultar dados de livros, com endpoints para MLOps.",
+        "version": "1.0.0"
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+        }
+    },
+}
+swagger = Swagger(app, template=template)
 
 # Simulação de Base de Dados (Em produção, isso viria do CSV gerado pelo Web Scraping)
 MOCK_DB = [
@@ -295,7 +311,7 @@ def get_scraping_logs():
       - name: lines
         in: query
         type: integer
-        description: Número de linhas a retornar (padrão: 50)
+        description: "Número de linhas a retornar (padrão: 50)"
     responses:
       200:
         description: Logs do scraping
@@ -362,6 +378,16 @@ def ml_predictions():
       - name: body
         in: body
         required: true
+        schema:
+          type: object
+          properties:
+            price:
+              type: number
+            category:
+              type: string
+          example:
+            price: 50.0
+            category: "Fiction" 
     responses:
       200:
         description: Predição realizada
@@ -371,6 +397,6 @@ def ml_predictions():
     return jsonify(prediction), 200
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 5001))
     debug = os.environ.get('FLASK_ENV') == 'development'
     app.run(debug=debug, host='0.0.0.0', port=port)
