@@ -26,9 +26,22 @@ with st.sidebar:
     api_url = st.text_input("URL da API", value=st.session_state.api_url)
     st.session_state.api_url = api_url
 
-# Função para fazer requisições à API
+# Função para fazer requisições à API com cache
+@st.cache_data(ttl=30)  # Cache por 30 segundos
+def fetch_data_cached(api_url, endpoint):
+    """Faz requisição à API e retorna os dados (com cache)"""
+    try:
+        response = requests.get(f"{api_url}{endpoint}", timeout=5)
+        if response.status_code == 200:
+            return response.json(), None
+        else:
+            return None, f"Erro {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return None, f"Erro de conexão: {str(e)}"
+
+# Função para fazer requisições à API sem cache (para operações que precisam de dados atualizados)
 def fetch_data(endpoint):
-    """Faz requisição à API e retorna os dados"""
+    """Faz requisição à API e retorna os dados (sem cache)"""
     try:
         response = requests.get(f"{st.session_state.api_url}{endpoint}", timeout=5)
         if response.status_code == 200:
@@ -39,7 +52,8 @@ def fetch_data(endpoint):
         return None, f"Erro de conexão: {str(e)}"
 
 # Verificar saúde da API
-health_data, health_error = fetch_data("/api/v1/health")
+with st.spinner("Verificando conexão com a API..."):
+    health_data, health_error = fetch_data("/api/v1/health")
 if health_error:
     st.error(f"❌ API offline: {health_error}")
     st.stop()
@@ -55,7 +69,8 @@ tab1, tab2, tab3, tab4 = st.tabs(["📊 Visão Geral", "📖 Livros", "🔐 Scra
 with tab1:
     st.header("📊 Estatísticas Gerais")
     
-    stats_data, stats_error = fetch_data("/api/v1/stats/overview")
+    with st.spinner("Carregando estatísticas..."):
+        stats_data, stats_error = fetch_data_cached(st.session_state.api_url, "/api/v1/stats/overview")
     
     if stats_error:
         st.error(f"Erro: {stats_error}")
@@ -69,7 +84,8 @@ with tab1:
             st.metric("Rating Médio", f"{stats_data.get('average_rating', 0):.2f}")
         
         # Gráfico simples
-        books_data, _ = fetch_data("/api/v1/books")
+        with st.spinner("Carregando dados para gráfico..."):
+            books_data, _ = fetch_data_cached(st.session_state.api_url, "/api/v1/books")
         if books_data:
             df = pd.DataFrame(books_data)
             if 'rating' in df.columns:
@@ -86,7 +102,8 @@ with tab1:
 with tab2:
     st.header("📖 Catálogo de Livros")
     
-    books_data, books_error = fetch_data("/api/v1/books")
+    with st.spinner("Carregando catálogo de livros..."):
+        books_data, books_error = fetch_data_cached(st.session_state.api_url, "/api/v1/books")
     
     if books_error:
         st.error(f"Erro: {books_error}")
@@ -142,10 +159,11 @@ with tab2:
                         st.image(image_url)
                     st.caption(f"{book.get('title', '')[:20]} - £{book.get('price', 0):.2f}")
             
-            # Botão para mostrar mais
+            # Botão para mostrar mais (sem rerun - atualiza apenas o estado)
             if len(filtered_df) > st.session_state.items_to_show:
                 if st.button("➕ Mostrar mais", key="show_more"):
                     st.session_state.items_to_show += 5
+                    # Usar st.experimental_rerun() ou apenas atualizar o display
                     st.rerun()
         else:
             # Tabela (modo padrão)
@@ -170,22 +188,23 @@ with tab3:
         password = st.text_input("Senha", type="password", value="admin", key="password")
         
         if st.button("🔑 Fazer Login", type="primary"):
-            try:
-                response = requests.post(
-                    f"{st.session_state.api_url}/api/v1/auth/login",
-                    json={"username": username, "password": password},
-                    timeout=5
-                )
-                
-                if response.status_code == 200:
-                    tokens = response.json()
-                    st.session_state.access_token = tokens.get('access_token')
-                    st.session_state.refresh_token = tokens.get('refresh_token')
-                    st.success("✅ Login realizado com sucesso!")
-                else:
-                    st.error(f"❌ Erro: {response.status_code}")
-            except Exception as e:
-                st.error(f"Erro: {str(e)}")
+            with st.spinner("Fazendo login..."):
+                try:
+                    response = requests.post(
+                        f"{st.session_state.api_url}/api/v1/auth/login",
+                        json={"username": username, "password": password},
+                        timeout=5
+                    )
+                    
+                    if response.status_code == 200:
+                        tokens = response.json()
+                        st.session_state.access_token = tokens.get('access_token')
+                        st.session_state.refresh_token = tokens.get('refresh_token')
+                        st.success("✅ Login realizado com sucesso!")
+                    else:
+                        st.error(f"❌ Erro: {response.status_code}")
+                except Exception as e:
+                    st.error(f"Erro: {str(e)}")
     
     with col2:
         st.subheader("🚀 Executar Scraping")
@@ -194,24 +213,80 @@ with tab3:
             st.success("✅ Token disponível")
             
             if st.button("🚀 Iniciar Scraping", type="primary"):
-                try:
-                    headers = {"Authorization": f"Bearer {st.session_state.access_token}"}
-                    response = requests.post(
-                        f"{st.session_state.api_url}/api/v1/scraping/trigger",
-                        headers=headers,
-                        timeout=10
-                    )
+                with st.spinner("Iniciando scraping..."):
+                    try:
+                        headers = {"Authorization": f"Bearer {st.session_state.access_token}"}
+                        response = requests.post(
+                            f"{st.session_state.api_url}/api/v1/scraping/trigger",
+                            headers=headers,
+                            timeout=10
+                        )
+                        
+                        if response.status_code == 202:
+                            st.success("✅ Scraping iniciado!")
+                            # Limpar cache para forçar atualização
+                            fetch_data_cached.clear()
+                            if 'logs_last_update' in st.session_state:
+                                del st.session_state.logs_last_update
+                        else:
+                            st.error(f"❌ Erro: {response.status_code}")
+                    except Exception as e:
+                        st.error(f"Erro: {str(e)}")
+            
+            st.markdown("---")
+            st.subheader("🗑️ Gerenciar CSV")
+            
+            # Verificar se CSV existe
+            try:
+                check_response = requests.get(f"{st.session_state.api_url}/api/v1/books", timeout=5)
+                csv_exists = check_response.status_code == 200 and len(check_response.json()) > 3  # Mais que mock data
+            except:
+                csv_exists = False
+            
+            if csv_exists:
+                st.info("📄 Arquivo CSV encontrado")
+                
+                # Confirmação antes de deletar
+                if 'confirm_delete' not in st.session_state:
+                    st.session_state.confirm_delete = False
+                
+                if not st.session_state.confirm_delete:
+                    if st.button("🗑️ Deletar CSV", type="secondary", key="delete_btn"):
+                        st.session_state.confirm_delete = True
+                else:
+                    st.warning("⚠️ Confirme a exclusão do CSV")
+                    col_confirm, col_cancel = st.columns(2)
+                    with col_confirm:
+                        if st.button("✅ Confirmar", type="primary", key="confirm_delete_btn"):
+                            with st.spinner("Deletando CSV..."):
+                                try:
+                                    headers = {"Authorization": f"Bearer {st.session_state.access_token}"}
+                                    response = requests.delete(
+                                        f"{st.session_state.api_url}/api/v1/scraping/delete-csv",
+                                        headers=headers,
+                                        timeout=5
+                                    )
+                                    
+                                    if response.status_code == 200:
+                                        st.success("✅ CSV deletado com sucesso!")
+                                        st.session_state.confirm_delete = False
+                                        # Limpar cache
+                                        fetch_data_cached.clear()
+                                    elif response.status_code == 404:
+                                        st.warning("⚠️ CSV não encontrado")
+                                        st.session_state.confirm_delete = False
+                                    else:
+                                        st.error(f"❌ Erro: {response.status_code}")
+                                        st.session_state.confirm_delete = False
+                                except Exception as e:
+                                    st.error(f"Erro: {str(e)}")
+                                    st.session_state.confirm_delete = False
                     
-                    if response.status_code == 202:
-                        st.success("✅ Scraping iniciado!")
-                        # Limpar cache de logs para forçar atualização
-                        if 'logs_last_update' in st.session_state:
-                            del st.session_state.logs_last_update
-                        st.rerun()
-                    else:
-                        st.error(f"❌ Erro: {response.status_code}")
-                except Exception as e:
-                    st.error(f"Erro: {str(e)}")
+                    with col_cancel:
+                        if st.button("❌ Cancelar", key="cancel_delete_btn"):
+                            st.session_state.confirm_delete = False
+            else:
+                st.info("📭 Nenhum CSV encontrado. Execute o scraping para criar um novo.")
         else:
             st.warning("⚠️ Faça login primeiro")
     
@@ -219,40 +294,37 @@ with tab3:
     st.markdown("---")
     st.subheader("📋 Logs do Scraping")
     
-    # Botão para atualizar
-    if st.button("🔄 Atualizar Logs", key="refresh_logs_btn"):
-        st.rerun()
-    
-    # Buscar logs
-    try:
-        response = requests.get(f"{st.session_state.api_url}/api/v1/scraping/logs?lines=100", timeout=5)
-        if response.status_code == 200:
-            logs_data = response.json()
-            logs = logs_data.get('logs', [])
-            status = logs_data.get('status', 'unknown')
-            
-            # Status
-            if status == "running":
-                st.info("🟢 Scraping em execução...")
-            elif status == "completed":
-                st.success("✅ Scraping concluído!")
-            elif status == "not_started":
-                st.warning("⚠️ Scraping não iniciado")
+    # Buscar logs com loading
+    with st.spinner("Carregando logs..."):
+        try:
+            response = requests.get(f"{st.session_state.api_url}/api/v1/scraping/logs?lines=100", timeout=5)
+            if response.status_code == 200:
+                logs_data = response.json()
+                logs = logs_data.get('logs', [])
+                status = logs_data.get('status', 'unknown')
+                
+                # Status
+                if status == "running":
+                    st.info("🟢 Scraping em execução...")
+                elif status == "completed":
+                    st.success("✅ Scraping concluído!")
+                elif status == "not_started":
+                    st.warning("⚠️ Scraping não iniciado")
+                else:
+                    st.info(f"Status: {status}")
+                
+                if logs:
+                    log_text = "".join(logs[-50:])
+                    st.text_area("Logs", value=log_text, height=300, disabled=True, key="logs_display")
+                    st.caption(f"Total de linhas: {len(logs)}")
+                else:
+                    st.info("Nenhum log disponível. Inicie o scraping para ver os logs.")
+            elif response.status_code == 404:
+                st.warning("⚠️ Endpoint de logs não encontrado. Verifique se a API está atualizada.")
             else:
-                st.info(f"Status: {status}")
-            
-            if logs:
-                log_text = "".join(logs[-50:])
-                st.text_area("Logs", value=log_text, height=300, disabled=True, key="logs_display")
-                st.caption(f"Total de linhas: {len(logs)}")
-            else:
-                st.info("Nenhum log disponível. Inicie o scraping para ver os logs.")
-        elif response.status_code == 404:
-            st.warning("⚠️ Endpoint de logs não encontrado. Verifique se a API está atualizada.")
-        else:
-            st.error(f"Erro ao buscar logs: {response.status_code}")
-    except Exception as e:
-        st.error(f"Erro: {str(e)}")
+                st.error(f"Erro ao buscar logs: {response.status_code}")
+        except Exception as e:
+            st.error(f"Erro: {str(e)}")
 
 # Tab 4: Busca
 with tab4:
@@ -260,11 +332,15 @@ with tab4:
     
     search_title = st.text_input("Buscar por título", placeholder="Digite o título...")
     
-    categories_data, _ = fetch_data("/api/v1/categories")
+    with st.spinner("Carregando categorias..."):
+        categories_data, _ = fetch_data_cached(st.session_state.api_url, "/api/v1/categories")
     if categories_data:
         selected_cat = st.selectbox("Categoria", ['Todas'] + sorted(categories_data), key="search_category")
     else:
         selected_cat = 'Todas'
+    
+    # Container para resultados
+    results_container = st.empty()
     
     if st.button("🔍 Buscar", type="primary"):
         params = {}
@@ -273,18 +349,20 @@ with tab4:
         if selected_cat != 'Todas':
             params['category'] = selected_cat
         
-        if params:
-            query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-            results, error = fetch_data(f"/api/v1/books/search?{query_string}")
-        else:
-            results, error = fetch_data("/api/v1/books")
+        with st.spinner("Buscando livros..."):
+            if params:
+                query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+                results, error = fetch_data(f"/api/v1/books/search?{query_string}")
+            else:
+                results, error = fetch_data("/api/v1/books")
         
-        if error:
-            st.error(f"Erro: {error}")
-        elif results:
-            st.success(f"✅ Encontrados {len(results)} livro(s)")
-            df_results = pd.DataFrame(results)
-            if len(df_results) > 0:
-                display_cols = ['id', 'title', 'category', 'price', 'rating']
-                available_cols = [col for col in display_cols if col in df_results.columns]
-                st.dataframe(df_results[available_cols], use_container_width=True)
+        with results_container.container():
+            if error:
+                st.error(f"Erro: {error}")
+            elif results:
+                st.success(f"✅ Encontrados {len(results)} livro(s)")
+                df_results = pd.DataFrame(results)
+                if len(df_results) > 0:
+                    display_cols = ['id', 'title', 'category', 'price', 'rating']
+                    available_cols = [col for col in display_cols if col in df_results.columns]
+                    st.dataframe(df_results[available_cols], use_container_width=True)

@@ -362,6 +362,47 @@ def get_scraping_logs():
             "status": "error"
         }), 500
 
+@app.route('/api/v1/scraping/delete-csv', methods=['DELETE'])
+@jwt_required()
+def delete_csv():
+    """
+    Rota protegida para deletar o arquivo CSV atual.
+    ---
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: CSV deletado com sucesso
+      404:
+        description: Arquivo CSV não encontrado
+    """
+    try:
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        csv_path = os.path.join(base_dir, 'data', 'books.csv')
+        
+        # Verificar se o arquivo existe
+        if not os.path.exists(csv_path):
+            return jsonify({
+                "message": "CSV file not found",
+                "path": csv_path,
+                "status": "not_found"
+            }), 404
+        
+        # Deletar o arquivo
+        os.remove(csv_path)
+        
+        return jsonify({
+            "message": "CSV file deleted successfully",
+            "path": csv_path,
+            "status": "deleted"
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "message": "Error deleting CSV file",
+            "error": str(e),
+            "type": type(e).__name__
+        }), 500
+
 # --- ENDPOINTS ML-READY (Desafio 2) ---
 
 @app.route('/api/v1/ml/features', methods=['GET'])
